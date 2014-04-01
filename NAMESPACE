@@ -1,0 +1,8 @@
+useDynLib("spcr")
+
+
+
+export(spcr)
+export(cv.spcr)
+
+
