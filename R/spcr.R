@@ -17,7 +17,7 @@ spcr <- function(x, y, k, lambda.B, lambda.gamma, w=0.1, xi=0.01, adaptive=FALSE
 
 	if( adaptive==FALSE ){
 		spcr.object <- .Call( "spcr", x, y, A, Beta, gamma, gamma0, lambda.B, lambda.gamma, xi, w )
-		ans <- list( beta=spcr.object[[1]], gamma=spcr.object[[2]], gamma0=spcr.object[[3]], A=spcr.object[[4]], call=match.call() )
+		ans <- list( loadings.B=spcr.object[[1]], gamma=spcr.object[[2]], gamma0=spcr.object[[3]], loadings.A=spcr.object[[4]], call=match.call() )
 		class(ans) <- "spcr"
 		ans
 	} else {
