@@ -1,4 +1,4 @@
-cv.spcr <- function(x, y, k, w=0.1, xi=0.01, nfolds=5, adaptive=FALSE, lambda.B.length=10, lambda.gamma.length=10){
+cv.spcr <- function(x, y, k, w=0.1, xi=0.01, nfolds=5, adaptive=FALSE, center=TRUE, scale=FALSE, lambda.B.length=10, lambda.gamma.length=10, lambda.B=NULL, lambda.gamma=NULL){
 	if( !is.matrix(x) ) stop("x must be a matrix.")
 	if( mode(x)!="numeric" ) stop("x must be numeric.")
 	if ( !is.vector(y) ) stop("y must be a vector.")
@@ -10,6 +10,8 @@ cv.spcr <- function(x, y, k, w=0.1, xi=0.01, nfolds=5, adaptive=FALSE, lambda.B.
 	ini.lambda.beta <- ini.lambda.gamma <- ini.lambda( x=x, y=y, k=k, w=w, xi=xi )
 	lambda.beta.candidate <- rev( seq( n*0.005, ini.lambda.beta, length=lambda.B.length ) )
 	lambda.gamma.candidate <- rev( seq(n* 0.005, ini.lambda.gamma, length=lambda.gamma.length ) )
+	if( is.null(lambda.B) != TRUE ) lambda.beta.candidate <- sort(lambda.B, decreasing=TRUE)
+	if( is.null(lambda.gamma) != TRUE ) lambda.gamma.candidate <- sort(lambda.gamma, decreasing=TRUE)
 	
 	A.ini <- as.matrix(eigen(var(x))$vectors[ ,1:k])
 	gamma0.ini <- mean(y)
@@ -25,10 +27,23 @@ cv.spcr <- function(x, y, k, w=0.1, xi=0.01, nfolds=5, adaptive=FALSE, lambda.B.
 	
 	for(i in seq(nfolds))
 	{
-		x <- x.all[ -(foldid==i), ]
-		y <- y.all[ -(foldid==i) ]
-		x.test.cv <- x.all[ (foldid==i), ]
-		y.test.cv <- y.all[ (foldid==i) ]
+		num.foldid <- which(foldid==i)
+		x <- x.all[ -num.foldid, ]
+		y <- y.all[ -num.foldid ]
+		x.test.cv <- x.all[ num.foldid, ]
+		y.test.cv <- y.all[ num.foldid ]
+		
+		if( center==TRUE ){
+			x_ori  <- x
+			x <- sweep(x_ori, 2, apply(x_ori,2,mean))
+			x.test.cv <- sweep(x.test.cv, 2, apply(x_ori,2,mean))
+		}
+		if( scale==TRUE ){
+			x_ori  <- x
+			x <- scale(x_ori)
+			x.test.cv <- sweep(sweep(x.test.cv, 2, apply(x_ori, 2, mean)), 2, apply(x_ori, 2, sd), FUN="/")
+		}
+				
 		####### START Estimate parameters (gamma_0, gamma, A, Beta)
 		for( itr.lambda.gamma in 1:lambda.gamma.length )
 		{
@@ -77,8 +92,29 @@ cv.spcr <- function(x, y, k, w=0.1, xi=0.01, nfolds=5, adaptive=FALSE, lambda.B.
 				CV.mat[ itr.lambda.gamma, itr.lambda.beta ] <- CV.mat[ itr.lambda.gamma, itr.lambda.beta ] + s_cv/nrow(x.test.cv)				
 			}
 		}
-		CV.mat <- CV.mat/nfolds
 	}
+	CV.mat <- CV.mat/nfolds
+	
+	### START Search of min CV
+#	minCandi.col <- whichiminCandi.col <- rep(0, nrow(CV.mat))
+#	for(i in 1:nrow(CV.mat))
+#	{
+#		whichiminCandi.col[i] <- which.min(CV.mat[i, ])
+#		minCandi.col[i] <- min(CV.mat[i, ])
+#	}
+	
+#	minCandi.row <- whichiminCandi.row <- rep(0, ncol(CV.mat))
+#	for(i in 1:ncol(CV.mat))
+#	{
+#		whichiminCandi.row[i] <- which.min(CV.mat[ ,i])
+#		minCandi.row[i] <- min(CV.mat[ ,i])
+#	}
+	### END Search of min CV
+
+	### Selected tuning parameters by CV
+#	lambda.gamma.cv <- lambda.gamma.candidate[ whichiminCandi.row[ which.min(minCandi.row) ] ]
+#	lambda.beta.cv <- lambda.beta.candidate[ whichiminCandi.col[ which.min(minCandi.col) ] ]
+	
 	
 	### START Search of min CV
 	minCandi.col <- whichiminCandi.col <- rep(0, nrow(CV.mat))
@@ -87,17 +123,12 @@ cv.spcr <- function(x, y, k, w=0.1, xi=0.01, nfolds=5, adaptive=FALSE, lambda.B.
 		whichiminCandi.col[i] <- which.min(CV.mat[i, ])
 		minCandi.col[i] <- min(CV.mat[i, ])
 	}
-	
-	minCandi.row <- whichiminCandi.row <- rep(0, ncol(CV.mat))
-	for(i in 1:ncol(CV.mat))
-	{
-		whichiminCandi.row[i] <- which.min(CV.mat[ ,i])
-		minCandi.row[i] <- min(CV.mat[ ,i])
-	}
+	whichiminCandi.row <- which.min( CV.mat[ , whichiminCandi.col[ which.min(minCandi.col) ]] )
+	minCandi.row <- min( CV.mat[ , whichiminCandi.col[ which.min(minCandi.col) ]] )		
 	### END Search of min CV
 	
 	### Selected tuning parameters by CV
-	lambda.gamma.cv <- lambda.gamma.candidate[ whichiminCandi.row[ which.min(minCandi.row) ] ]
+	lambda.gamma.cv <- lambda.gamma.candidate[ whichiminCandi.row ]
 	lambda.beta.cv <- lambda.beta.candidate[ whichiminCandi.col[ which.min(minCandi.col) ] ]
 	
 	ans <- list( lambda.gamma.seq=lambda.gamma.candidate, lambda.B.seq=lambda.beta.candidate, CV.mat=CV.mat, lambda.gamma.cv=lambda.gamma.cv, lambda.B.cv=lambda.beta.cv, cvm=min(minCandi.row), call=match.call() )

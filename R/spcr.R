@@ -1,14 +1,15 @@
-spcr <- function(x, y, k, lambda.B, lambda.gamma, w=0.1, xi=0.01, adaptive=FALSE){
+spcr <- function(x, y, k, lambda.B, lambda.gamma, w=0.1, xi=0.01, adaptive=FALSE, center=TRUE, scale=FALSE){
 	if( !is.matrix(x) ) stop("x must be a matrix.")
 	if( mode(x)!="numeric" ) stop("x must be numeric.")
 	if ( !is.vector(y) ) stop("y must be a vector.")
 	if( mode(y)!="numeric" ) stop("y must be numeric.")
 	
-	ini.lambda.B <- ini.lambda.gamma <- ini.lambda( x=x, y=y, k=k, w=w, xi=xi )
-	if( ini.lambda.B < lambda.B ) stop("lambda.B is large. Set smaller lambda.B.")
-	if( ini.lambda.gamma < lambda.gamma ) stop("lambda.gamma is large. Set smaller lambda.gamma.")
+#	ini.lambda.B <- ini.lambda.gamma <- ini.lambda( x=x, y=y, k=k, w=w, xi=xi )
+#	if( ini.lambda.B < lambda.B ) stop("lambda.B is large. Set smaller lambda.B.")
+#	if( ini.lambda.gamma < lambda.gamma ) stop("lambda.gamma is large. Set smaller lambda.gamma.")
 	
-	x <- sweep(x, 2, apply(x,2,mean))
+	if( center==TRUE ) x <- sweep(x, 2, apply(x,2,mean))
+	if( scale==TRUE ) x <- scale(x)
 	
 	A <- as.matrix(eigen(var(x))$vectors[ ,1:k])
 	gamma0 <- mean(y)

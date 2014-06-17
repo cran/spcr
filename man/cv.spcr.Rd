@@ -3,8 +3,9 @@
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{Cross-validation for spcr}
 \description{This function performs cross-validation for spcr. \code{cv.spcr} enables us to determine two regularization parameters \eqn{\lambda_\beta} and \eqn{\lambda_\gamma} objectively.}
-\usage{cv.spcr(x, y, k, w=0.1, xi=0.01, nfolds=5, adaptive=FALSE, lambda.B.length=10, 
-    lambda.gamma.length=10)}
+\usage{cv.spcr(x, y, k, w=0.1, xi=0.01, nfolds=5, adaptive=FALSE, 
+	center=TRUE, scale=FALSE, lambda.B.length=10, lambda.gamma.length=10,
+	lambda.B=NULL, lambda.gamma=NULL)}
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{x}{
@@ -25,13 +26,20 @@ The elastic net mixing parameter with \eqn{0\le \alpha \le 1}. The default is 0.
   \item{nfolds}{
 The number of folds. The default is 5.
 }
- \item{adaptive}{If \code{"TRUE"}, the adaptive SPCR is used.
-}
+ \item{adaptive}{If \code{"TRUE"}, the adaptive SPCR is used.}
+  \item{center}{If \code{"TRUE"}, the data matrix is centered.}
+ \item{scale}{If \code{"TRUE"}, the data matrix is scaled.}
  \item{lambda.B.length}{
 The number of candidates for the parameter \eqn{\lambda_\beta}. The default is 10.
 }
  \item{lambda.gamma.length}{
 The number of candidates for the parameter \eqn{\lambda_\gamma}. The default is 10.
+}
+ \item{lambda.B}{
+Optional user-supplied candidates for the parameter \eqn{\lambda_\beta}.  The default is NULL. 
+}
+ \item{lambda.gamma}{
+Optional user-supplied candidates for the parameter \eqn{\lambda_\gamma}.  The default is NULL. 
 }
 }
 \value{
