@@ -19,7 +19,7 @@ cv.spcr <- function(x, y, k, w=0.1, xi=0.01, nfolds=5, adaptive=FALSE, center=TR
 	Beta.ini <- matrix( 0, nrow(A.ini), k )
 	
 	### CV_mat : estimated CV errors
-	CV.mat <- matrix( 0, lambda.gamma.length, lambda.B.length )
+	CV.mat <- matrix( 0, length(lambda.gamma.candidate), length(lambda.beta.candidate) )
 
 	foldid <- sample(rep(seq(nfolds),length=n))
 	x.all <- x
@@ -45,7 +45,7 @@ cv.spcr <- function(x, y, k, w=0.1, xi=0.01, nfolds=5, adaptive=FALSE, center=TR
 		}
 				
 		####### START Estimate parameters (gamma_0, gamma, A, Beta)
-		for( itr.lambda.gamma in 1:lambda.gamma.length )
+		for( itr.lambda.gamma in 1:length(lambda.gamma.candidate) )
 		{
 			lambda.gamma <- lambda.gamma.candidate[itr.lambda.gamma]
 			A <- A.ini
@@ -53,7 +53,7 @@ cv.spcr <- function(x, y, k, w=0.1, xi=0.01, nfolds=5, adaptive=FALSE, center=TR
 			gamma <- gamma.ini
 			Beta <- Beta.ini
 			
-			for( itr.lambda.beta in 1:lambda.B.length )
+			for( itr.lambda.beta in 1:length(lambda.beta.candidate) )
 			{
 				lambda.beta <- lambda.beta.candidate[itr.lambda.beta]
 				

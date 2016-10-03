@@ -1,10 +1,11 @@
-\name{cv.spcr}
-\alias{cv.spcr}
+\name{cv.spcrglm}
+\alias{cv.spcrglm}
 %- Also NEED an '\alias' for EACH other topic documented here.
-\title{Cross-validation for spcr}
-\description{This function performs cross-validation for spcr. \code{cv.spcr} enables us to determine two regularization parameters \eqn{\lambda_\beta} and \eqn{\lambda_\gamma} objectively.}
-\usage{cv.spcr(x, y, k, w=0.1, xi=0.01, nfolds=5, adaptive=FALSE, 
-	center=TRUE, scale=FALSE, lambda.B.length=10, lambda.gamma.length=10,
+\title{Cross-validation for spcr-glm}
+\description{This function performs cross-validation for SPCR-glm. \code{cv.spcrglm} enables us to determine two regularization parameters \eqn{\lambda_\beta} and \eqn{\lambda_\gamma} objectively.}
+\usage{cv.spcrglm(x, y, k, family=c("binomial","poisson","multinomial"), 
+	w=0.1, xi=0.01, nfolds=5, adaptive=FALSE, q=1, center=TRUE, 
+	scale=FALSE, lambda.B.length=10, lambda.gamma.length=10,
 	lambda.B=NULL, lambda.gamma=NULL)}
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -17,8 +18,11 @@ A response vector.
   \item{k}{
 The number of principal components.
 }
+  \item{family}{
+Response type.
+}
   \item{w}{
-Weight parameter with \eqn{0\le w \le 1}. The default is 0.1.
+Weight parameter with \eqn{w \ge 0}. The default is 0.1.
 }
   \item{xi}{
 The elastic net mixing parameter with \eqn{0\le \alpha \le 1}. The default is 0.01.
@@ -26,7 +30,8 @@ The elastic net mixing parameter with \eqn{0\le \alpha \le 1}. The default is 0.
   \item{nfolds}{
 The number of folds. The default is 5.
 }
- \item{adaptive}{If \code{"TRUE"}, the adaptive SPCR is used.}
+ \item{adaptive}{If \code{"TRUE"}, the adaptive SPCR-glm (aSPCR-glm) is used.}
+ \item{q}{The tuning parameter that controls weights in aSPCR-glm. The default is 1.}
   \item{center}{If \code{"TRUE"}, the data matrix is centered.}
  \item{scale}{If \code{"TRUE"}, the data matrix is scaled.}
  \item{lambda.B.length}{
@@ -53,9 +58,9 @@ Optional user-supplied candidates for the parameter \eqn{\lambda_\gamma}.  The d
 \references{
 %% ~put references to the literature/web site here ~
 %Friedman, J. (2008).  Fast sparse regression and classification. \eqn{Technical report}, Standford University.\cr
-Kawano, S., Fujisawa, H., Takada, T. and Shiroishi, T. (2015). 
-\emph{Sparse principal component regression with adaptive loading.}
-\emph{Compuational Statistics & Data Analysis, 89, 192--203.}
+Kawano, S., Fujisawa, H., Takada, T. and Shiroishi, T. (2016). 
+\emph{Sparse principal component regression for generalized linear models}.
+  \url{http://arxiv.org/abs/1609.08886}
 }
 \author{
 Shuichi Kawano\cr
@@ -65,24 +70,29 @@ Shuichi Kawano\cr
 %  ~~further notes~~
 %}
 % ~Make other sections like Warning with \section{Warning }{....} ~
-\seealso{\code{spcr}}
+\seealso{\code{spcrglm}}
 \examples{
-#data
-n <- 50
-np <- 5
-set.seed(1)
+# binomial
+n <- 100
+np <- 3
 nu0 <- c(-1, 1)
+set.seed(4)
 x <- matrix( rnorm(np*n), n, np )
-e <- rnorm(n)
-y <- nu0[1]*x[ ,1] + nu0[2]*x[ ,2] + e
+y <- rbinom(n,1,1-1/(1+exp(  (nu0[1]*x[ ,1] + nu0[2]*x[ ,2]  ))))
+cv.spcrglm.fit <- cv.spcrglm(x=x, y=y, k=1, family="binomial")
+cv.spcrglm.fit
 
-#fit
-cv.spcr.fit <- cv.spcr(x=x, y=y, k=2)
-cv.spcr.fit
+# Poisson
+set.seed(5)
+y <- rpois(n, 1)
+cv.spcrglm.fit <- cv.spcrglm(x=x, y=y, k=1, family="poisson")
+cv.spcrglm.fit
 
-#fit (adaptive SPCR)
-cv.adaspcr.fit <- cv.spcr(x=x, y=y, k=2, adaptive=TRUE)
-cv.adaspcr.fit
+# multinomial
+set.seed(4)
+y <- sample(1:4, n, replace=TRUE)
+cv.spcrglm.fit <- cv.spcrglm(x=x, y=y, k=1, family="multinomial")
+cv.spcrglm.fit
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

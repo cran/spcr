@@ -180,7 +180,7 @@ SEXP spcr(SEXP ex_x, SEXP ex_y, SEXP ex_A, SEXP ex_Beta, SEXP ex_gamma, SEXP ex_
 		F77_CALL(dgemm)(&TRANST, &TRANSN, &p, &k, &n, &alphaOne, REAL(ex_x), &n, REAL(y_star), &n, &betaZero, REAL(XinY_star), &p);
 		
 		/// X_innBetainGamma の作成
-		F77_CALL(dgemv)(&TRANSN, &p, &k, &alphaOne, REAL(Beta), &p, REAL(gamma), &one, &betaZero, REAL(BetainGamma), &one);	
+		F77_CALL(dgemv)(&TRANSN, &p, &k, &alphaOne, REAL(Beta), &p, REAL(gamma), &one, &betaZero, REAL(BetainGamma), &one);
 		F77_CALL(dgemv)(&TRANSN, &p, &p, &alphaOne, REAL(X_inn), &p, REAL(BetainGamma), &one, &betaZero, REAL(X_innBetainGamma), &one);	
 		
 		/// X_innBeta の作成

@@ -33,21 +33,21 @@ The elastic net mixing parameter with \eqn{0\le \alpha \le 1}. The default is 0.
  \item{scale}{If \code{"TRUE"}, the data matrix is scaled.}
 }
 \value{
-\item{loadings.B}{B}
+\item{loadings.B}{the loading matrix B}
 \item{gamma}{the coefficient}
 \item{gamma0}{intercept}
-\item{loadings.A}{A}
+\item{loadings.A}{the loading matrix A}
 }
 \references{
 %% ~put references to the literature/web site here ~
 %Friedman, J. (2008).  Fast sparse regression and classification. \eqn{Technical report}, Standford University.\cr
-Kawano, S., Fujisawa, H., Takada, T. and Shiroishi, T. (2014). 
-\emph{Sparse principal component regression with adaptive loading}.
-  \url{http://arxiv.org/abs/1402.6455}
+Kawano, S., Fujisawa, H., Takada, T. and Shiroishi, T. (2015). 
+\emph{Sparse principal component regression with adaptive loading.}
+\emph{Compuational Statistics & Data Analysis, 89, 192--203.}
 }
 \author{
 Shuichi Kawano\cr
-\email{skawano@ms.osakafu-u.ac.jp}
+\email{skawano@uec.ac.jp}
 }
 %\note{
 %  ~~further notes~~

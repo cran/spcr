@@ -1,8 +1,8 @@
 useDynLib("spcr")
 
-
+import(stats)
 
 export(spcr)
-export(cv.spcr)
-
-
+export(spcrglm)
+export(cv.spcr) 
+export(cv.spcrglm)

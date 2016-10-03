@@ -1,14 +1,14 @@
 Package: spcr
 Type: Package
-Title: Sparse principal component regression
-Version: 1.2.1
-Date: 2014-12-04
+Title: Sparse Principal Component Regression
+Version: 2.0
+Date: 2016-10-03
 Author: Shuichi Kawano
-Maintainer: Shuichi Kawano <skawano@ai.is.uec.ac.jp>
-Description: This package computes the sparse principal component regression. The regularization parameters are optimized by cross-validation.
+Maintainer: Shuichi Kawano <skawano@uec.ac.jp>
+Description: The sparse principal component regression is computed. The regularization parameters are optimized by cross-validation.
 License: GPL (>= 2)
 URL: https://sites.google.com/site/shuichikawanoen/
 Repository: CRAN
-Packaged: 2014-12-04 06:27:18 UTC; shuichi
 NeedsCompilation: yes
-Date/Publication: 2014-12-04 09:05:31
+Packaged: 2016-10-03 08:51:01 UTC; kawano
+Date/Publication: 2016-10-03 13:30:02
