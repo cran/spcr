@@ -59,7 +59,7 @@ Kawano, S., Fujisawa, H., Takada, T. and Shiroishi, T. (2015).
 }
 \author{
 Shuichi Kawano\cr
-\email{skawano@uec.ac.jp}
+\email{skawano@ai.lab.uec.ac.jp}
 }
 %\note{
 %  ~~further notes~~

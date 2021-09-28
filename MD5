@@ -1,4 +1,4 @@
-8e9efc3ff74d60e043d11496bcceb748 *DESCRIPTION
+d0eeba20be319b21ee672ed64faf4799 *DESCRIPTION
 f07eacb53d9744023cb360e927d37efc *NAMESPACE
 efda6da0a9729862470b1455181e78d8 *R/SPCRLoG.R
 43a0ccbb0f65a3be204dac9858fd5341 *R/SPCRMultiLoG.R
@@ -9,9 +9,9 @@ c272455cc66d609a0f1fbd84434735e1 *R/ini.lambda.R
 d50a9eca0e69e90491f0e2cce73d287b *R/softthresh.R
 a5a06702e6d92d420c7a5355ac57cb2d *R/spcr.R
 36b4ebecf1e77f0acbd7cb7bcaef0bf4 *R/spcrglm.R
-6f4ce6ea2c77da8cc2dd63730205c233 *man/cv.spcr.Rd
-08076e78379c1168be6c1d37408e9e05 *man/cv.spcrglm.Rd
-8b2e94027ca6c49b7a118291e7b94bba *man/spcr.Rd
-63bbb194c33509bad17d63f0d3ee7e45 *man/spcrglm.Rd
+74434c77594775cb7af99d544621a58e *man/cv.spcr.Rd
+1db62afc571e1ef98c8ff69b9a7560da *man/cv.spcrglm.Rd
+5424cbe76b642b54c3ee814a4db92566 *man/spcr.Rd
+94e7c73eab292e7fc75ce6f2d982bfa2 *man/spcrglm.Rd
 2a6f9e9e044a78154d3cfda5936d6f48 *src/Makevars
-0008378d3893e7ae4941d8e8f4fa4ab9 *src/SPCR.c
+549e5652b0e1013bc0ac9f04926e9159 *src/SPCR.c

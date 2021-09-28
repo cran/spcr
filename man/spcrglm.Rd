@@ -47,13 +47,13 @@ The tuning parameter that controls weights in aSPCR-glm. The default is 1.
 \references{
 %% ~put references to the literature/web site here ~
 %Friedman, J. (2008).  Fast sparse regression and classification. \eqn{Technical report}, Standford University.\cr
-Kawano, S., Fujisawa, H., Takada, T. and Shiroishi, T. (2016). 
+Kawano, S., Fujisawa, H., Takada, T. and Shiroishi, T. (2018). 
 \emph{Sparse principal component regression for generalized linear models}.
-  \url{http://arxiv.org/abs/1609.08886}
+\emph{Compuational Statistics & Data Analysis, 124, 180--196.}
 }
 \author{
 Shuichi Kawano\cr
-\email{skawano@uec.ac.jp}
+\email{skawano@ai.lab.uec.ac.jp}
 }
 %\note{
 %  ~~further notes~~
@@ -73,7 +73,8 @@ spcrglm.fit
 
 # Poisson
 set.seed(4)
-y <- rpois(n, exp(  (nu0[1]*x[ ,1] + nu0[2]*x[ ,2] ) ))spcrglm.fit <- spcrglm(x=x, y=y, k=2, family="poisson", lambda.B=2, lambda.gamma=1)
+y <- rpois(n, exp(  (nu0[1]*x[ ,1] + nu0[2]*x[ ,2] ) ))
+spcrglm.fit <- spcrglm(x=x, y=y, k=2, family="poisson", lambda.B=2, lambda.gamma=1)
 spcrglm.fit
 
 # multinomial

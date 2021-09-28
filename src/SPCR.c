@@ -1,10 +1,13 @@
 //Ｒ用 Ｃ
 //#include <stdio.h>
+//#define USE_FC_LEN_T
 #include <math.h>
 #include <stdlib.h>
-#include <R.h>
+//#include <R.h>
 #include <Rdefines.h>
 #include <R_ext/Parse.h>
+#define USE_FC_LEN_T
+#include <Rconfig.h>
 #include <R_ext/BLAS.h>
 #include <R_ext/Lapack.h>
 
