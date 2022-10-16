@@ -1,4 +1,4 @@
-//Ｒ用 Ｃ
+#define USE_FC_LEN_T
 //#include <stdio.h>
 //#define USE_FC_LEN_T
 #include <math.h>
@@ -10,7 +10,9 @@
 #include <Rconfig.h>
 #include <R_ext/BLAS.h>
 #include <R_ext/Lapack.h>
-
+#ifndef FCONE
+# define FCONE
+#endif
 
 //////////////////////////////////////////////////
 //BLAS: y := alpha*A*x + beta*y
@@ -157,10 +159,10 @@ SEXP spcr(SEXP ex_x, SEXP ex_y, SEXP ex_A, SEXP ex_Beta, SEXP ex_gamma, SEXP ex_
 	INTEGER(n_itr)[0] = 0;
 	
 	/// X_inn の作成
-	F77_CALL(dgemm)(&TRANST, &TRANSN, &p, &p, &n, &alphaOne, REAL(ex_x), &n, REAL(ex_x), &n, &betaZero, REAL(X_inn), &p);
+	F77_CALL(dgemm)(&TRANST, &TRANSN, &p, &p, &n, &alphaOne, REAL(ex_x), &n, REAL(ex_x), &n, &betaZero, REAL(X_inn), &p FCONE FCONE);
 	
 	/// XinY の作成
-	F77_CALL(dgemv)(&TRANST, &n, &p, &alphaOne, REAL(ex_x), &n, REAL(ex_y), &one, &betaZero, REAL(XinY), &one);
+	F77_CALL(dgemv)(&TRANST, &n, &p, &alphaOne, REAL(ex_x), &n, REAL(ex_y), &one, &betaZero, REAL(XinY), &one FCONE);
 
 	// パラメータの更新スタート
 	while ( diff_max > 0.001 ) {
@@ -171,23 +173,23 @@ SEXP spcr(SEXP ex_x, SEXP ex_y, SEXP ex_A, SEXP ex_Beta, SEXP ex_gamma, SEXP ex_
 		/////////////////////////
 		
 		/// y_star の作成
-		F77_CALL(dgemm)(&TRANSN, &TRANSN, &n, &k, &p, &alphaOne, REAL(ex_x), &n, REAL(A), &p, &betaZero, REAL(y_star), &n);
+		F77_CALL(dgemm)(&TRANSN, &TRANSN, &n, &k, &p, &alphaOne, REAL(ex_x), &n, REAL(A), &p, &betaZero, REAL(y_star), &n FCONE FCONE);
 		
 		/// Xingamma0 の作成
 		for (i=0; i<n; i++) {
 			REAL(unit_vec)[i] = REAL(gamma0)[0];
 		}
-		F77_CALL(dgemv)(&TRANST, &n, &p, &alphaOne, REAL(ex_x), &n, REAL(unit_vec), &one, &betaZero, REAL(Xingamma0), &one);	
+		F77_CALL(dgemv)(&TRANST, &n, &p, &alphaOne, REAL(ex_x), &n, REAL(unit_vec), &one, &betaZero, REAL(Xingamma0), &one FCONE);
 		
 		/// XinY_star の作成
-		F77_CALL(dgemm)(&TRANST, &TRANSN, &p, &k, &n, &alphaOne, REAL(ex_x), &n, REAL(y_star), &n, &betaZero, REAL(XinY_star), &p);
+		F77_CALL(dgemm)(&TRANST, &TRANSN, &p, &k, &n, &alphaOne, REAL(ex_x), &n, REAL(y_star), &n, &betaZero, REAL(XinY_star), &p FCONE FCONE);
 		
 		/// X_innBetainGamma の作成
-		F77_CALL(dgemv)(&TRANSN, &p, &k, &alphaOne, REAL(Beta), &p, REAL(gamma), &one, &betaZero, REAL(BetainGamma), &one);
-		F77_CALL(dgemv)(&TRANSN, &p, &p, &alphaOne, REAL(X_inn), &p, REAL(BetainGamma), &one, &betaZero, REAL(X_innBetainGamma), &one);	
+		F77_CALL(dgemv)(&TRANSN, &p, &k, &alphaOne, REAL(Beta), &p, REAL(gamma), &one, &betaZero, REAL(BetainGamma), &one FCONE);
+		F77_CALL(dgemv)(&TRANSN, &p, &p, &alphaOne, REAL(X_inn), &p, REAL(BetainGamma), &one, &betaZero, REAL(X_innBetainGamma), &one FCONE);
 		
 		/// X_innBeta の作成
-		F77_CALL(dgemm)(&TRANSN, &TRANSN, &p, &k, &p, &alphaOne, REAL(X_inn), &p, REAL(Beta), &p, &betaZero, REAL(X_innBeta), &p);
+		F77_CALL(dgemm)(&TRANSN, &TRANSN, &p, &k, &p, &alphaOne, REAL(X_inn), &p, REAL(Beta), &p, &betaZero, REAL(X_innBeta), &p FCONE FCONE);
 		
 		/// パラメータの更新 via Covariance Update
 		for (j=0; j<k; j++) {	
@@ -222,19 +224,19 @@ SEXP spcr(SEXP ex_x, SEXP ex_y, SEXP ex_A, SEXP ex_Beta, SEXP ex_gamma, SEXP ex_
 		///////////////////////////
 
 		/// x_star の作成
-		F77_CALL(dgemm)(&TRANSN, &TRANSN, &n, &k, &p, &alphaOne, REAL(ex_x), &n, REAL(Beta), &p, &betaZero, REAL(x_star), &n);
+		F77_CALL(dgemm)(&TRANSN, &TRANSN, &n, &k, &p, &alphaOne, REAL(ex_x), &n, REAL(Beta), &p, &betaZero, REAL(x_star), &n FCONE FCONE);
 		
 		/// X_star_inn の作成
-		F77_CALL(dgemm)(&TRANST, &TRANSN, &k, &k, &n, &alphaOne, REAL(x_star), &n, REAL(x_star), &n, &betaZero, REAL(X_star_inn), &k);
+		F77_CALL(dgemm)(&TRANST, &TRANSN, &k, &k, &n, &alphaOne, REAL(x_star), &n, REAL(x_star), &n, &betaZero, REAL(X_star_inn), &k FCONE FCONE);
 		
 		/// X_starinY の作成
-		F77_CALL(dgemv)(&TRANST, &n, &k, &alphaOne, REAL(x_star), &n, REAL(ex_y), &one, &betaZero, REAL(X_starinY), &one);	
+		F77_CALL(dgemv)(&TRANST, &n, &k, &alphaOne, REAL(x_star), &n, REAL(ex_y), &one, &betaZero, REAL(X_starinY), &one FCONE);	
 		
 		/// X_staringamma0 の作成
-		F77_CALL(dgemv)(&TRANST, &n, &k, &alphaOne, REAL(x_star), &n, REAL(unit_vec), &one, &betaZero, REAL(X_staringamma0), &one);	
+		F77_CALL(dgemv)(&TRANST, &n, &k, &alphaOne, REAL(x_star), &n, REAL(unit_vec), &one, &betaZero, REAL(X_staringamma0), &one FCONE);	
 		
 		/// X_starinngamma の作成
-		F77_CALL(dgemv)(&TRANSN, &k, &k, &alphaOne, REAL(X_star_inn), &k, REAL(gamma), &one, &betaZero, REAL(X_starinngamma), &one);	
+		F77_CALL(dgemv)(&TRANSN, &k, &k, &alphaOne, REAL(X_star_inn), &k, REAL(gamma), &one, &betaZero, REAL(X_starinngamma), &one FCONE);	
 		
 		/// パラメータの更新 via Covariance Update
 		for (l=0; l<k; l++) {
@@ -262,9 +264,9 @@ SEXP spcr(SEXP ex_x, SEXP ex_y, SEXP ex_A, SEXP ex_Beta, SEXP ex_gamma, SEXP ex_
 	
 		// Estimate gamma0
 		//  x %*% Betaを作る過程 -> x_Beta_ForGamma0
-		F77_CALL(dgemm)(&TRANSN, &TRANSN, &n, &k, &p, &alphaOne, REAL(ex_x), &n, REAL(Beta), &p, &betaZero, REAL(x_Beta_ForGamma0), &n);	
+		F77_CALL(dgemm)(&TRANSN, &TRANSN, &n, &k, &p, &alphaOne, REAL(ex_x), &n, REAL(Beta), &p, &betaZero, REAL(x_Beta_ForGamma0), &n FCONE FCONE);	
 		//  x %*% Beta %*% gamma を作る過程 -> x_Beta_gamma_ForGamma0
-		F77_CALL(dgemv)(&TRANSN, &n, &k, &alphaOne, REAL(x_Beta_ForGamma0), &n, REAL(gamma), &one, &betaZero, REAL(x_Beta_gamma_ForGamma0), &one);
+		F77_CALL(dgemv)(&TRANSN, &n, &k, &alphaOne, REAL(x_Beta_ForGamma0), &n, REAL(gamma), &one, &betaZero, REAL(x_Beta_gamma_ForGamma0), &one FCONE);
 		
 		s=0.0;
 		for (i=0; i<n; i++) {
@@ -276,17 +278,17 @@ SEXP spcr(SEXP ex_x, SEXP ex_y, SEXP ex_A, SEXP ex_Beta, SEXP ex_gamma, SEXP ex_
 
 		// Estimate A
 		//  t(x) %*% x を作る過程 -> tXX
-		F77_CALL(dgemm)(&TRANST, &TRANSN, &p, &p, &n, &alphaOne, REAL(ex_x), &n, REAL(ex_x), &n, &betaZero, REAL(tXX), &p);	
+		F77_CALL(dgemm)(&TRANST, &TRANSN, &p, &p, &n, &alphaOne, REAL(ex_x), &n, REAL(ex_x), &n, &betaZero, REAL(tXX), &p FCONE FCONE);	
 		//  t(x) %*% x  %*% Beta を作る過程 -> tXX_Beta
-		F77_CALL(dgemm)(&TRANSN, &TRANSN, &p, &k, &p, &alphaOne, REAL(tXX), &p, REAL(Beta), &p, &betaZero, REAL(tXX_Beta), &p);	
+		F77_CALL(dgemm)(&TRANSN, &TRANSN, &p, &k, &p, &alphaOne, REAL(tXX), &p, REAL(Beta), &p, &betaZero, REAL(tXX_Beta), &p FCONE FCONE);	
 		// implement SVD
 		lwork=-1;
-		F77_CALL(dgesdd)(&ATIL, &p, &k, REAL(tXX_Beta), &p, REAL(A_singular), REAL(u), &p, REAL(vt), &k, &wkopt, &lwork, INTEGER(iwork), &info);
+		F77_CALL(dgesdd)(&ATIL, &p, &k, REAL(tXX_Beta), &p, REAL(A_singular), REAL(u), &p, REAL(vt), &k, &wkopt, &lwork, INTEGER(iwork), &info FCONE);
 		lwork = (int) wkopt;
 		work = (double*) malloc( lwork*sizeof(double) );
 		/* Compute SVD */
-		F77_CALL(dgesdd)(&ATIL, &p, &k, REAL(tXX_Beta), &p, REAL(A_singular), REAL(u), &p, REAL(vt), &k, work, &lwork, INTEGER(iwork), &info);
-		F77_CALL(dgemm)(&TRANSN, &TRANSN, &p, &k, &k, &alphaOne, REAL(u), &p, REAL(vt), &k, &betaZero, REAL(A), &p);	
+		F77_CALL(dgesdd)(&ATIL, &p, &k, REAL(tXX_Beta), &p, REAL(A_singular), REAL(u), &p, REAL(vt), &k, work, &lwork, INTEGER(iwork), &info FCONE);
+		F77_CALL(dgemm)(&TRANSN, &TRANSN, &p, &k, &k, &alphaOne, REAL(u), &p, REAL(vt), &k, &betaZero, REAL(A), &p FCONE FCONE);	
 	
 		
 		
@@ -455,10 +457,10 @@ SEXP adaspcr(SEXP ex_x, SEXP ex_y, SEXP ex_A, SEXP ex_Beta, SEXP ex_gamma, SEXP 
 	INTEGER(n_itr)[0] = 0;
 	
 	/// X_inn の作成
-	F77_CALL(dgemm)(&TRANST, &TRANSN, &p, &p, &n, &alphaOne, REAL(ex_x), &n, REAL(ex_x), &n, &betaZero, REAL(X_inn), &p);
+	F77_CALL(dgemm)(&TRANST, &TRANSN, &p, &p, &n, &alphaOne, REAL(ex_x), &n, REAL(ex_x), &n, &betaZero, REAL(X_inn), &p FCONE FCONE);
 	
 	/// XinY の作成
-	F77_CALL(dgemv)(&TRANST, &n, &p, &alphaOne, REAL(ex_x), &n, REAL(ex_y), &one, &betaZero, REAL(XinY), &one);
+	F77_CALL(dgemv)(&TRANST, &n, &p, &alphaOne, REAL(ex_x), &n, REAL(ex_y), &one, &betaZero, REAL(XinY), &one FCONE);
 	
 	// パラメータの更新スタート
 	while ( diff_max > 0.001 ) {
@@ -469,23 +471,23 @@ SEXP adaspcr(SEXP ex_x, SEXP ex_y, SEXP ex_A, SEXP ex_Beta, SEXP ex_gamma, SEXP 
 		/////////////////////////
 		
 		/// y_star の作成
-		F77_CALL(dgemm)(&TRANSN, &TRANSN, &n, &k, &p, &alphaOne, REAL(ex_x), &n, REAL(A), &p, &betaZero, REAL(y_star), &n);
+		F77_CALL(dgemm)(&TRANSN, &TRANSN, &n, &k, &p, &alphaOne, REAL(ex_x), &n, REAL(A), &p, &betaZero, REAL(y_star), &n FCONE FCONE);
 		
 		/// Xingamma0 の作成
 		for (i=0; i<n; i++) {
 			REAL(unit_vec)[i] = REAL(gamma0)[0];
 		}
-		F77_CALL(dgemv)(&TRANST, &n, &p, &alphaOne, REAL(ex_x), &n, REAL(unit_vec), &one, &betaZero, REAL(Xingamma0), &one);	
+		F77_CALL(dgemv)(&TRANST, &n, &p, &alphaOne, REAL(ex_x), &n, REAL(unit_vec), &one, &betaZero, REAL(Xingamma0), &one FCONE);	
 		
 		/// XinY_star の作成
-		F77_CALL(dgemm)(&TRANST, &TRANSN, &p, &k, &n, &alphaOne, REAL(ex_x), &n, REAL(y_star), &n, &betaZero, REAL(XinY_star), &p);
+		F77_CALL(dgemm)(&TRANST, &TRANSN, &p, &k, &n, &alphaOne, REAL(ex_x), &n, REAL(y_star), &n, &betaZero, REAL(XinY_star), &p FCONE FCONE);
 		
 		/// X_innBetainGamma の作成
-		F77_CALL(dgemv)(&TRANSN, &p, &k, &alphaOne, REAL(Beta), &p, REAL(gamma), &one, &betaZero, REAL(BetainGamma), &one);	
-		F77_CALL(dgemv)(&TRANSN, &p, &p, &alphaOne, REAL(X_inn), &p, REAL(BetainGamma), &one, &betaZero, REAL(X_innBetainGamma), &one);	
+		F77_CALL(dgemv)(&TRANSN, &p, &k, &alphaOne, REAL(Beta), &p, REAL(gamma), &one, &betaZero, REAL(BetainGamma), &one FCONE);	
+		F77_CALL(dgemv)(&TRANSN, &p, &p, &alphaOne, REAL(X_inn), &p, REAL(BetainGamma), &one, &betaZero, REAL(X_innBetainGamma), &one FCONE);	
 		
 		/// X_innBeta の作成
-		F77_CALL(dgemm)(&TRANSN, &TRANSN, &p, &k, &p, &alphaOne, REAL(X_inn), &p, REAL(Beta), &p, &betaZero, REAL(X_innBeta), &p);
+		F77_CALL(dgemm)(&TRANSN, &TRANSN, &p, &k, &p, &alphaOne, REAL(X_inn), &p, REAL(Beta), &p, &betaZero, REAL(X_innBeta), &p FCONE FCONE);
 		
 		/// パラメータの更新 via Covariance Update
 		for (j=0; j<k; j++) {	
@@ -520,19 +522,19 @@ SEXP adaspcr(SEXP ex_x, SEXP ex_y, SEXP ex_A, SEXP ex_Beta, SEXP ex_gamma, SEXP 
 		///////////////////////////
 		
 		/// x_star の作成
-		F77_CALL(dgemm)(&TRANSN, &TRANSN, &n, &k, &p, &alphaOne, REAL(ex_x), &n, REAL(Beta), &p, &betaZero, REAL(x_star), &n);
+		F77_CALL(dgemm)(&TRANSN, &TRANSN, &n, &k, &p, &alphaOne, REAL(ex_x), &n, REAL(Beta), &p, &betaZero, REAL(x_star), &n FCONE FCONE);
 		
 		/// X_star_inn の作成
-		F77_CALL(dgemm)(&TRANST, &TRANSN, &k, &k, &n, &alphaOne, REAL(x_star), &n, REAL(x_star), &n, &betaZero, REAL(X_star_inn), &k);
+		F77_CALL(dgemm)(&TRANST, &TRANSN, &k, &k, &n, &alphaOne, REAL(x_star), &n, REAL(x_star), &n, &betaZero, REAL(X_star_inn), &k FCONE FCONE);
 		
 		/// X_starinY の作成
-		F77_CALL(dgemv)(&TRANST, &n, &k, &alphaOne, REAL(x_star), &n, REAL(ex_y), &one, &betaZero, REAL(X_starinY), &one);	
+		F77_CALL(dgemv)(&TRANST, &n, &k, &alphaOne, REAL(x_star), &n, REAL(ex_y), &one, &betaZero, REAL(X_starinY), &one FCONE);	
 		
 		/// X_staringamma0 の作成
-		F77_CALL(dgemv)(&TRANST, &n, &k, &alphaOne, REAL(x_star), &n, REAL(unit_vec), &one, &betaZero, REAL(X_staringamma0), &one);	
+		F77_CALL(dgemv)(&TRANST, &n, &k, &alphaOne, REAL(x_star), &n, REAL(unit_vec), &one, &betaZero, REAL(X_staringamma0), &one FCONE);	
 		
 		/// X_starinngamma の作成
-		F77_CALL(dgemv)(&TRANSN, &k, &k, &alphaOne, REAL(X_star_inn), &k, REAL(gamma), &one, &betaZero, REAL(X_starinngamma), &one);	
+		F77_CALL(dgemv)(&TRANSN, &k, &k, &alphaOne, REAL(X_star_inn), &k, REAL(gamma), &one, &betaZero, REAL(X_starinngamma), &one FCONE);	
 		
 		/// パラメータの更新 via Covariance Update
 		for (l=0; l<k; l++) {
@@ -560,9 +562,9 @@ SEXP adaspcr(SEXP ex_x, SEXP ex_y, SEXP ex_A, SEXP ex_Beta, SEXP ex_gamma, SEXP 
 		
 		// Estimate gamma0
 		//  x %*% Betaを作る過程 -> x_Beta_ForGamma0
-		F77_CALL(dgemm)(&TRANSN, &TRANSN, &n, &k, &p, &alphaOne, REAL(ex_x), &n, REAL(Beta), &p, &betaZero, REAL(x_Beta_ForGamma0), &n);	
+		F77_CALL(dgemm)(&TRANSN, &TRANSN, &n, &k, &p, &alphaOne, REAL(ex_x), &n, REAL(Beta), &p, &betaZero, REAL(x_Beta_ForGamma0), &n FCONE FCONE);	
 		//  x %*% Beta %*% gamma を作る過程 -> x_Beta_gamma_ForGamma0
-		F77_CALL(dgemv)(&TRANSN, &n, &k, &alphaOne, REAL(x_Beta_ForGamma0), &n, REAL(gamma), &one, &betaZero, REAL(x_Beta_gamma_ForGamma0), &one);
+		F77_CALL(dgemv)(&TRANSN, &n, &k, &alphaOne, REAL(x_Beta_ForGamma0), &n, REAL(gamma), &one, &betaZero, REAL(x_Beta_gamma_ForGamma0), &one FCONE);
 		
 		s=0.0;
 		for (i=0; i<n; i++) {
@@ -574,17 +576,17 @@ SEXP adaspcr(SEXP ex_x, SEXP ex_y, SEXP ex_A, SEXP ex_Beta, SEXP ex_gamma, SEXP 
 		
 		// Estimate A
 		//  t(x) %*% x を作る過程 -> tXX
-		F77_CALL(dgemm)(&TRANST, &TRANSN, &p, &p, &n, &alphaOne, REAL(ex_x), &n, REAL(ex_x), &n, &betaZero, REAL(tXX), &p);	
+		F77_CALL(dgemm)(&TRANST, &TRANSN, &p, &p, &n, &alphaOne, REAL(ex_x), &n, REAL(ex_x), &n, &betaZero, REAL(tXX), &p FCONE FCONE);	
 		//  t(x) %*% x  %*% Beta を作る過程 -> tXX_Beta
-		F77_CALL(dgemm)(&TRANSN, &TRANSN, &p, &k, &p, &alphaOne, REAL(tXX), &p, REAL(Beta), &p, &betaZero, REAL(tXX_Beta), &p);	
+		F77_CALL(dgemm)(&TRANSN, &TRANSN, &p, &k, &p, &alphaOne, REAL(tXX), &p, REAL(Beta), &p, &betaZero, REAL(tXX_Beta), &p FCONE FCONE);	
 		// implement SVD
 		lwork=-1;
-		F77_CALL(dgesdd)(&ATIL, &p, &k, REAL(tXX_Beta), &p, REAL(A_singular), REAL(u), &p, REAL(vt), &k, &wkopt, &lwork, INTEGER(iwork), &info);
+		F77_CALL(dgesdd)(&ATIL, &p, &k, REAL(tXX_Beta), &p, REAL(A_singular), REAL(u), &p, REAL(vt), &k, &wkopt, &lwork, INTEGER(iwork), &info FCONE);
 		lwork = (int) wkopt;
 		work = (double*) malloc( lwork*sizeof(double) );
 		/* Compute SVD */
-		F77_CALL(dgesdd)(&ATIL, &p, &k, REAL(tXX_Beta), &p, REAL(A_singular), REAL(u), &p, REAL(vt), &k, work, &lwork, INTEGER(iwork), &info);
-		F77_CALL(dgemm)(&TRANSN, &TRANSN, &p, &k, &k, &alphaOne, REAL(u), &p, REAL(vt), &k, &betaZero, REAL(A), &p);	
+		F77_CALL(dgesdd)(&ATIL, &p, &k, REAL(tXX_Beta), &p, REAL(A_singular), REAL(u), &p, REAL(vt), &k, work, &lwork, INTEGER(iwork), &info FCONE);
+		F77_CALL(dgemm)(&TRANSN, &TRANSN, &p, &k, &k, &alphaOne, REAL(u), &p, REAL(vt), &k, &betaZero, REAL(A), &p FCONE FCONE);	
 		
 		
 		
@@ -749,10 +751,10 @@ SEXP inispcr(SEXP ex_x, SEXP ex_y, SEXP ex_A, SEXP ex_Beta, SEXP ex_gamma, SEXP 
 	INTEGER(n_itr)[0] = 0;
 	
 	/// X_inn の作成
-	F77_CALL(dgemm)(&TRANST, &TRANSN, &p, &p, &n, &alphaOne, REAL(ex_x), &n, REAL(ex_x), &n, &betaZero, REAL(X_inn), &p);
+	F77_CALL(dgemm)(&TRANST, &TRANSN, &p, &p, &n, &alphaOne, REAL(ex_x), &n, REAL(ex_x), &n, &betaZero, REAL(X_inn), &p FCONE FCONE);
 	
 	/// XinY の作成
-	F77_CALL(dgemv)(&TRANST, &n, &p, &alphaOne, REAL(ex_x), &n, REAL(ex_y), &one, &betaZero, REAL(XinY), &one);
+	F77_CALL(dgemv)(&TRANST, &n, &p, &alphaOne, REAL(ex_x), &n, REAL(ex_y), &one, &betaZero, REAL(XinY), &one FCONE);
 	
 	
 	
@@ -763,23 +765,23 @@ SEXP inispcr(SEXP ex_x, SEXP ex_y, SEXP ex_A, SEXP ex_Beta, SEXP ex_gamma, SEXP 
 	/////////////////////////
 	
 	/// y_star の作成
-	F77_CALL(dgemm)(&TRANSN, &TRANSN, &n, &k, &p, &alphaOne, REAL(ex_x), &n, REAL(A), &p, &betaZero, REAL(y_star), &n);
+	F77_CALL(dgemm)(&TRANSN, &TRANSN, &n, &k, &p, &alphaOne, REAL(ex_x), &n, REAL(A), &p, &betaZero, REAL(y_star), &n FCONE FCONE);
 	
 	/// Xingamma0 の作成
 	for (i=0; i<n; i++) {
 		REAL(unit_vec)[i] = REAL(gamma0)[0];
 	}
-	F77_CALL(dgemv)(&TRANST, &n, &p, &alphaOne, REAL(ex_x), &n, REAL(unit_vec), &one, &betaZero, REAL(Xingamma0), &one);	
+	F77_CALL(dgemv)(&TRANST, &n, &p, &alphaOne, REAL(ex_x), &n, REAL(unit_vec), &one, &betaZero, REAL(Xingamma0), &one FCONE);	
 	
 	/// XinY_star の作成
-	F77_CALL(dgemm)(&TRANST, &TRANSN, &p, &k, &n, &alphaOne, REAL(ex_x), &n, REAL(y_star), &n, &betaZero, REAL(XinY_star), &p);
+	F77_CALL(dgemm)(&TRANST, &TRANSN, &p, &k, &n, &alphaOne, REAL(ex_x), &n, REAL(y_star), &n, &betaZero, REAL(XinY_star), &p FCONE FCONE);
 	
 	/// X_innBetainGamma の作成
-	F77_CALL(dgemv)(&TRANSN, &p, &k, &alphaOne, REAL(Beta), &p, REAL(gamma), &one, &betaZero, REAL(BetainGamma), &one);	
-	F77_CALL(dgemv)(&TRANSN, &p, &p, &alphaOne, REAL(X_inn), &p, REAL(BetainGamma), &one, &betaZero, REAL(X_innBetainGamma), &one);	
+	F77_CALL(dgemv)(&TRANSN, &p, &k, &alphaOne, REAL(Beta), &p, REAL(gamma), &one, &betaZero, REAL(BetainGamma), &one FCONE);	
+	F77_CALL(dgemv)(&TRANSN, &p, &p, &alphaOne, REAL(X_inn), &p, REAL(BetainGamma), &one, &betaZero, REAL(X_innBetainGamma), &one FCONE);	
 	
 	/// X_innBeta の作成
-	F77_CALL(dgemm)(&TRANSN, &TRANSN, &p, &k, &p, &alphaOne, REAL(X_inn), &p, REAL(Beta), &p, &betaZero, REAL(X_innBeta), &p);
+	F77_CALL(dgemm)(&TRANSN, &TRANSN, &p, &k, &p, &alphaOne, REAL(X_inn), &p, REAL(Beta), &p, &betaZero, REAL(X_innBeta), &p FCONE FCONE);
 	
 	/// パラメータの更新 via Covariance Update
 	for (j=0; j<k; j++) {	
@@ -814,19 +816,19 @@ SEXP inispcr(SEXP ex_x, SEXP ex_y, SEXP ex_A, SEXP ex_Beta, SEXP ex_gamma, SEXP 
 	///////////////////////////
 	
 	/// x_star の作成
-	F77_CALL(dgemm)(&TRANSN, &TRANSN, &n, &k, &p, &alphaOne, REAL(ex_x), &n, REAL(Beta), &p, &betaZero, REAL(x_star), &n);
+	F77_CALL(dgemm)(&TRANSN, &TRANSN, &n, &k, &p, &alphaOne, REAL(ex_x), &n, REAL(Beta), &p, &betaZero, REAL(x_star), &n FCONE FCONE);
 	
 	/// X_star_inn の作成
-	F77_CALL(dgemm)(&TRANST, &TRANSN, &k, &k, &n, &alphaOne, REAL(x_star), &n, REAL(x_star), &n, &betaZero, REAL(X_star_inn), &k);
+	F77_CALL(dgemm)(&TRANST, &TRANSN, &k, &k, &n, &alphaOne, REAL(x_star), &n, REAL(x_star), &n, &betaZero, REAL(X_star_inn), &k FCONE FCONE);
 	
 	/// X_starinY の作成
-	F77_CALL(dgemv)(&TRANST, &n, &k, &alphaOne, REAL(x_star), &n, REAL(ex_y), &one, &betaZero, REAL(X_starinY), &one);	
+	F77_CALL(dgemv)(&TRANST, &n, &k, &alphaOne, REAL(x_star), &n, REAL(ex_y), &one, &betaZero, REAL(X_starinY), &one FCONE);	
 	
 	/// X_staringamma0 の作成
-	F77_CALL(dgemv)(&TRANST, &n, &k, &alphaOne, REAL(x_star), &n, REAL(unit_vec), &one, &betaZero, REAL(X_staringamma0), &one);	
+	F77_CALL(dgemv)(&TRANST, &n, &k, &alphaOne, REAL(x_star), &n, REAL(unit_vec), &one, &betaZero, REAL(X_staringamma0), &one FCONE);	
 	
 	/// X_starinngamma の作成
-	F77_CALL(dgemv)(&TRANSN, &k, &k, &alphaOne, REAL(X_star_inn), &k, REAL(gamma), &one, &betaZero, REAL(X_starinngamma), &one);	
+	F77_CALL(dgemv)(&TRANSN, &k, &k, &alphaOne, REAL(X_star_inn), &k, REAL(gamma), &one, &betaZero, REAL(X_starinngamma), &one FCONE);	
 	
 	/// パラメータの更新 via Covariance Update
 	for (l=0; l<k; l++) {
@@ -854,9 +856,9 @@ SEXP inispcr(SEXP ex_x, SEXP ex_y, SEXP ex_A, SEXP ex_Beta, SEXP ex_gamma, SEXP 
 	
 	// Estimate gamma0
 	//  x %*% Betaを作る過程 -> x_Beta_ForGamma0
-	F77_CALL(dgemm)(&TRANSN, &TRANSN, &n, &k, &p, &alphaOne, REAL(ex_x), &n, REAL(Beta), &p, &betaZero, REAL(x_Beta_ForGamma0), &n);	
+	F77_CALL(dgemm)(&TRANSN, &TRANSN, &n, &k, &p, &alphaOne, REAL(ex_x), &n, REAL(Beta), &p, &betaZero, REAL(x_Beta_ForGamma0), &n FCONE FCONE);	
 	//  x %*% Beta %*% gamma を作る過程 -> x_Beta_gamma_ForGamma0
-	F77_CALL(dgemv)(&TRANSN, &n, &k, &alphaOne, REAL(x_Beta_ForGamma0), &n, REAL(gamma), &one, &betaZero, REAL(x_Beta_gamma_ForGamma0), &one);
+	F77_CALL(dgemv)(&TRANSN, &n, &k, &alphaOne, REAL(x_Beta_ForGamma0), &n, REAL(gamma), &one, &betaZero, REAL(x_Beta_gamma_ForGamma0), &one FCONE);
 	
 	s=0.0;
 	for (i=0; i<n; i++) {
@@ -868,17 +870,17 @@ SEXP inispcr(SEXP ex_x, SEXP ex_y, SEXP ex_A, SEXP ex_Beta, SEXP ex_gamma, SEXP 
 	
 	// Estimate A
 	//  t(x) %*% x を作る過程 -> tXX
-	F77_CALL(dgemm)(&TRANST, &TRANSN, &p, &p, &n, &alphaOne, REAL(ex_x), &n, REAL(ex_x), &n, &betaZero, REAL(tXX), &p);	
+	F77_CALL(dgemm)(&TRANST, &TRANSN, &p, &p, &n, &alphaOne, REAL(ex_x), &n, REAL(ex_x), &n, &betaZero, REAL(tXX), &p FCONE FCONE);	
 	//  t(x) %*% x  %*% Beta を作る過程 -> tXX_Beta
-	F77_CALL(dgemm)(&TRANSN, &TRANSN, &p, &k, &p, &alphaOne, REAL(tXX), &p, REAL(Beta), &p, &betaZero, REAL(tXX_Beta), &p);	
+	F77_CALL(dgemm)(&TRANSN, &TRANSN, &p, &k, &p, &alphaOne, REAL(tXX), &p, REAL(Beta), &p, &betaZero, REAL(tXX_Beta), &p FCONE FCONE);	
 	// implement SVD
 	lwork=-1;
-	F77_CALL(dgesdd)(&ATIL, &p, &k, REAL(tXX_Beta), &p, REAL(A_singular), REAL(u), &p, REAL(vt), &k, &wkopt, &lwork, INTEGER(iwork), &info);
+	F77_CALL(dgesdd)(&ATIL, &p, &k, REAL(tXX_Beta), &p, REAL(A_singular), REAL(u), &p, REAL(vt), &k, &wkopt, &lwork, INTEGER(iwork), &info FCONE);
 	lwork = (int) wkopt;
 	work = (double*) malloc( lwork*sizeof(double) );
 	/* Compute SVD */
-	F77_CALL(dgesdd)(&ATIL, &p, &k, REAL(tXX_Beta), &p, REAL(A_singular), REAL(u), &p, REAL(vt), &k, work, &lwork, INTEGER(iwork), &info);
-	F77_CALL(dgemm)(&TRANSN, &TRANSN, &p, &k, &k, &alphaOne, REAL(u), &p, REAL(vt), &k, &betaZero, REAL(A), &p);	
+	F77_CALL(dgesdd)(&ATIL, &p, &k, REAL(tXX_Beta), &p, REAL(A_singular), REAL(u), &p, REAL(vt), &k, work, &lwork, INTEGER(iwork), &info FCONE);
+	F77_CALL(dgemm)(&TRANSN, &TRANSN, &p, &k, &k, &alphaOne, REAL(u), &p, REAL(vt), &k, &betaZero, REAL(A), &p FCONE FCONE);	
 	
 	
 	
